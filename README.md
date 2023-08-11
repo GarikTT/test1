@@ -9,10 +9,10 @@
 разных платформ для сбора логов.  
 Результат выполнения - полученные навыки по основам работы с rsyslog, logrotate, journald, auditd, abrtd и kdump.  
 Ага, приступаем к выполнению.  
-1. БОльшую часть работы по синхронизации времени мы, с вами, выполняем в Vagrantfile.  
+1 БОльшую часть работы по синхронизации времени мы, с вами, выполняем в Vagrantfile.  
 	Объясняю - по умолчанию время на серверах устанавливается на UTC+0, а, нам надо, что бы было наше,  
 	родное, Красноярское. Ручной метод, описанный в методичке я проверял - тоже работает.  
-2. Теперь, просто заходим по очереди на Веб сервер и Log сервер и проверяем время - одинаковое, Красноярское.  
+2 Теперь, просто заходим по очереди на Веб сервер и Log сервер и проверяем время - одинаковое, Красноярское.  
 	vagrant ssh web  
 	systemctl status chronyd  
 	timedatectl  
@@ -23,7 +23,7 @@
 	timedatectl  
 	exit  
 	Ну, вот, отлично!  
-3. Далее по методичке устанавливаем самую свежую версию nginx на виртуальной машине web -  
+3 Далее по методичке устанавливаем самую свежую версию nginx на виртуальной машине web -  
 	vagrant ssh web  
 	Устанавливаем пакеты, необходимые для подключения yum-репозитория:  
 	sudo yum install yum-utils -y  
@@ -68,14 +68,14 @@ module_hotfixes=true
 	Выхлоп команды systemctl status rsyslog мне больше понравился.  
 8. Открываем через mc файл - /etc/rsyslog.conf. Исправляем нужные строки. Хотя, можно было раскомментировать  
 	те, которые там были, но они немного отличаются.  
-# provides UDP syslog reception  
+/# provides UDP syslog reception  
 module(load="imudp")  
 input(type="imudp" port="514")  
-# provides TCP syslog reception  
+/# provides TCP syslog reception  
 module(load="imtcp")  
 input(type="imtcp" port="514")  
 	В конец файла добавляем -  
-#Add remote logs  
+/#Add remote logs  
 $template RemoteLogs,"/var/log/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"  
 *.* ?RemoteLogs  
 & ~ // Это что за символы? В методичке правильно написано?! Хотя nginx -t не выдал никаких ошибок. Но, и без них все проходит нормально!  
@@ -128,14 +128,14 @@ $template RemoteLogs,"/var/log/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
 26 В  файле /etc/audisp/audisp-remote.conf требуется указать адрес сервера и порт, 
 	на который будут отправляться логи:
 	[root@web ~]# cat /etc/audisp/audisp-remote.conf
-#                                                                                                                                                                            
-# This file controls the configuration of the audit remote                                                                                                                   
+/#                                                                                                                                                                            
+/# This file controls the configuration of the audit remote                                                                                                                   
 /#   logging subsystem, audisp-remote.
-#                                                                                                                                                                            
+/#                                                                                                                                                                            
                                                                                                                                                                              
 remote_server = 192.168.56.15
 port = 60
-##local_port =                                                                                                                                                               
+/##local_port =                                                                                                                                                               
 transport = tcp
 queue_file = /var/spool/audit/remote.log
 27 Далее перезапускаем службу auditd:
