@@ -103,34 +103,34 @@ $template RemoteLogs,"/var/log/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
 </pre>
 15. В Firefox ([смотрим](page.jpg)) - Вау!!! Какая красатищща!!!
 <pre>
-15. Специально делаем ашибку для web-страницы - 
+16. Специально делаем ашибку для web-страницы - 
 	rm /usr/share/nginx/html/img/header-background.png
 	rm /usr/share/nginx/html/img/centos-logo.png
 </pre>
 	Очищаем историю браузера и ([видим](page_error.jpg)), что картинки как не бывало. Блин!!!  
-16. Далее заходим на log-сервер и смотрим информацию об nginx:  
+17. Далее заходим на log-сервер и смотрим информацию об nginx:  
 	([cat /var/log/rsyslog/web/nginx_access.log](nginx_access.log))  
 	([cat /var/log/rsyslog/web/nginx_error.log](nginx_access.log))  
 <pre>
 	Да, натворили мы с вами дел!!! А копии не судьба было сделать? Как теперь восстанавливать?
-17. Настройка аудита, контролирующего изменения конфигурации nginx.
-18. Проверяем установленную версию пакета аудита -
+18. Настройка аудита, контролирующего изменения конфигурации nginx.
+19. Проверяем установленную версию пакета аудита -
 	rpm -qa | grep audit
-19. В конец файла /etc/audit/rules.d/audit.rules добавим следующие строки:
+20. В конец файла /etc/audit/rules.d/audit.rules добавим следующие строки:
 	-w /etc/nginx/nginx.conf -р wa -k nginx_conf
 	-w /etc/nginx/default.d/ -p wa -k nginx_conf
-20. Перезапускаем службу auditd:
+21. Перезапускаем службу auditd:
 	service auditd restart
-21. Сотрем какую нибудь лишнюю строчку в файле /etc/nginx/nginx.conf.
-22. Смотрим изменения - ausearch -f /etc/nginx/nginx.conf.
-23. Далее настроим пересылку логов на удаленный сервер.
-24. Установим пакет audispd-plugins:
+22. Сотрем какую нибудь лишнюю строчку в файле /etc/nginx/nginx.conf.
+23. Смотрим изменения - ausearch -f /etc/nginx/nginx.conf.
+24. Далее настроим пересылку логов на удаленный сервер.
+25. Установим пакет audispd-plugins:
 	yum -y install audispd-plugins
-25. Найдем и поменяем следующие строки в файле /etc/audit/auditd.conf:
+26. Найдем и поменяем следующие строки в файле /etc/audit/auditd.conf:
 	log_format = RAW
 	name_format = HOSTNAME
-26. В  файле /etc/audisp/plugins.d/au-remote.conf поменяем параметр active на yes.
-27. В  файле /etc/audisp/audisp-remote.conf требуется указать адрес сервера и порт, 
+27. В  файле /etc/audisp/plugins.d/au-remote.conf поменяем параметр active на yes.
+28. В  файле /etc/audisp/audisp-remote.conf требуется указать адрес сервера и порт, 
 	на который будут отправляться логи:
 	[root@web ~]# cat /etc/audisp/audisp-remote.conf
 #                                                                                                                                                                            
@@ -143,29 +143,29 @@ port = 60
 ##local_port =                                                                                                                                                               
 transport = tcp
 queue_file = /var/spool/audit/remote.log
-28. Далее перезапускаем службу auditd:
+29. Далее перезапускаем службу auditd:
 	service auditd restart
-29. Далее настроим Log-сервер.
+30. Далее настроим Log-сервер.
 	Откроем порт TCP 60, для этого уберем значки комментария в файле /etc/audit/auditd.conf:
 	tcp_listen_port = 60
-30. Перезапустим службу auditd:
+31. Перезапустим службу auditd:
 	service auditd restart
-31. Смотрим информацию об изменении атрибута:
+32. Смотрим информацию об изменении атрибута:
 	[root@web ~]# ls -l /etc/nginx/nginx.conf
 	-rw-r--r—. 1 root root 1487 Dec 14 14:41 /etc/nginx/nginx.conf
 	[root@web ~]# chmod +x /etc/nginx/nginx.conf
 	[root@web ~]# ls -l /etc/nginx/nginx.conf
 	-rwxr-xr-x. 1 root root 1487 Dec 14 14:41 /etc/nginx/nginx.conf - цвет названия поменялся на зеленый!!!
-32. Выполняем на log-сервере -
+33. Выполняем на log-сервере -
 	[root@log ~]# grep web /var/log/audit/audit.log
-33. Ну, вот, все. Все шаги прошли без запинки. Теперь самое интересное. 
+34. Ну, вот, все. Все шаги прошли без запинки. Теперь самое интересное. 
 	Помимо базового задания рекомендуется сделать данное задание следующим образом:
 	Все настройки сделать с помощью Ansible и добавить запуск Ansible playbook из Vagrantfile.
 	Для запуска playbook по команде vagrant up достаточно добавить следующую конструкцию в раздел Boxes.
 	Вроде на 15 занятии это делали, но там был один сервер и все операции выполнить одинаково
 	для всех ВМ. А здесь два сервера и разные настройки для каждого!!!
 </pre>
-34. Создаем инвентори файл ([hosts](hosts)) и ([epel.yml](epel.yml))
+35. Создаем инвентори файл ([hosts](hosts)) и ([epel.yml](epel.yml))
 <pre>
 epel.yml:
 ---
@@ -195,7 +195,7 @@ epel.yml:
           yum install tzdata -y
 #      when: "'log' in inventory_hostname"
 script --timing=time_loading_log loading.log
-35. Выполняем по очереди команды -
+36. Выполняем по очереди команды -
 	ansible-playbook epel.yml hosts --ask-become-pass
 	ansible all -a "df -h" -u root
 	ansible all -a "timedatectl" -u root
@@ -207,6 +207,6 @@ script --timing=time_loading_log loading.log
 	Что-то работает, что-то нет! Еще не во всем разобрался.
 	Возможное решение: Прописать в файле YML процесс ожидания, пока другой процесс завершит свою работу с файлом блокировки,
 	а затем повторить выполнение команды.
-36. Идея Ansible понятна. Выполнить можно все, главное разобраться тщательнее!!!
-37. Все.
+37. Идея Ansible понятна. Выполнить можно все, главное разобраться тщательнее!!!
+38. Все.
 </pre>
