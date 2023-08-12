@@ -24,7 +24,9 @@
 	timedatectl  
 	exit  
 	Ну, вот, отлично!  
+</pre>
 34. Создаем инвентори файл ([hosts](hosts)) и ([epel.yml](epel.yml))
+<sss>
 3. Далее по методичке устанавливаем самую свежую версию nginx на виртуальной машине web -  
 	vagrant ssh web  
 	Устанавливаем пакеты, необходимые для подключения yum-репозитория:  
@@ -50,4 +52,4 @@ module_hotfixes=true
 	yum install epel-release -y		// А, этот epel-release не ставится, что-ли, по дефолту?  
 	yum install -y nginx  
 	Пока все идет хорошо и без ошибок!  
-</pre>
+</sss>
